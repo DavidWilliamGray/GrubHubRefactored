@@ -1,0 +1,821 @@
+<!doctype html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <title>GrubHub - Dashboard</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      rel="stylesheet"
+    />
+    <link href="assets/css/styles.css" rel="stylesheet" />
+    <link rel="icon" href="assets/icons/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" />
+    <link rel="manifest" href="site.webmanifest" />
+    <meta name="theme-color" content="#6f42c1" />
+  </head>
+  <body data-page="dashboard">
+    <a class="skip-link" href="#mainContent">Skip to main content</a>
+    <div
+      aria-atomic="true"
+      aria-live="polite"
+      class="live-region"
+      id="sr-announcer-polite"
+    ></div>
+    <div
+      aria-atomic="true"
+      aria-live="assertive"
+      class="live-region"
+      id="sr-announcer-assertive"
+    ></div>
+    <header class="sticky-head border-bottom mobile-only">
+      <nav aria-label="Primary" class="navbar bg-white">
+        <div class="container-fluid">
+          <span class="navbar-brand mx-auto brand-accent">GrubHub</span>
+        </div>
+      </nav>
+      <div class="container pt-2 pb-3">
+        <ul class="nav nav-pills justify-content-between pill-tabs">
+          <li class="nav-item flex-fill text-center">
+            <a
+              class="nav-link nav-page-link"
+              data-page-link="listings"
+              href="listings.html"
+              >Listings</a
+            >
+          </li>
+          <li class="nav-item flex-fill text-center">
+            <a
+              class="nav-link nav-page-link"
+              data-page-link="dashboard"
+              href="dashboard.html"
+              >Dashboard</a
+            >
+          </li>
+          <li class="nav-item flex-fill text-center">
+            <a
+              class="nav-link nav-page-link"
+              data-page-link="profile"
+              href="profile.html"
+              >Profile</a
+            >
+          </li>
+        </ul>
+      </div>
+    </header>
+    <section class="mobile-only">
+      <main
+        class="container py-3 focus-target"
+        id="mainContent"
+        style="max-width: 720px"
+        tabindex="-1"
+      >
+        <h1 class="visually-hidden" id="pageHeading">
+          Dashboard and upload tools
+        </h1>
+        <div class="mb-3" id="ordersDashboard"></div>
+        <div class="d-none" id="uploadSection">
+          <div class="card shadow-smooth border-0">
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-3">
+                <h5 class="mb-0 flex-grow-1">Upload Goods</h5>
+                <button
+                  class="btn btn-sm btn-outline-secondary"
+                  id="btnHideUpload"
+                  type="button"
+                >
+                  Close
+                </button>
+              </div>
+              <form class="vstack gap-3" id="uploadForm">
+                <div class="row g-3">
+                  <div class="col-12">
+                    <label class="form-label" for="upTitle">Title</label
+                    ><input
+                      class="form-control"
+                      id="upTitle"
+                      maxlength="120"
+                      required=""
+                    />
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label" for="upDesc">Description</label
+                    ><textarea
+                      class="form-control"
+                      id="upDesc"
+                      maxlength="600"
+                      required=""
+                      rows="3"
+                    ></textarea>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label" for="upCat">Category</label
+                    ><input
+                      class="form-control"
+                      id="upCat"
+                      placeholder="e.g. Fish &amp; Chips, Pizza, Salad"
+                      required=""
+                    />
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label" for="upPrice">Price (£)</label
+                    ><input
+                      class="form-control"
+                      id="upPrice"
+                      min="0"
+                      required=""
+                      step="0.01"
+                      type="number"
+                    />
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label" for="upPortions"
+                      >Portions available</label
+                    ><input
+                      class="form-control"
+                      id="upPortions"
+                      min="1"
+                      required=""
+                      step="1"
+                      type="number"
+                    />
+                    <div class="form-text small">
+                      How many portions of this dish you’re selling.
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label" for="upExpiryDays"
+                      >Expires in</label
+                    ><select class="form-select" id="upExpiryDays" required="">
+                      <option value="1">1 day</option>
+                      <option value="2">2 days</option>
+                      <option value="3">3 days</option>
+                      <option value="4">4 days</option>
+                      <option value="5">5 days</option>
+                      <option value="6">6 days</option>
+                      <option value="7">7 days (max)</option>
+                    </select>
+                    <div class="form-text small">Maximum expiry is 7 days.</div>
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label" for="upDeliveryRate"
+                      >Delivery £/mile</label
+                    ><input
+                      class="form-control"
+                      id="upDeliveryRate"
+                      min="0"
+                      placeholder="0.00"
+                      step="0.01"
+                      type="number"
+                    />
+                    <div class="form-text small">
+                      Leave blank to disable delivery.
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <div class="form-check form-check-inline">
+                      <input
+                        checked=""
+                        class="form-check-input"
+                        id="upPickup"
+                        type="checkbox"
+                      /><label class="form-check-label" for="upPickup"
+                        >Pickup available</label
+                      >
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input
+                        class="form-check-input"
+                        id="upDelivery"
+                        type="checkbox"
+                      /><label class="form-check-label" for="upDelivery"
+                        >Delivery available</label
+                      >
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <div class="form-check form-switch">
+                      <input
+                        class="form-check-input"
+                        id="upVegan"
+                        type="checkbox"
+                      /><label class="form-check-label" for="upVegan"
+                        >Vegan dish</label
+                      >
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label"
+                      >Allergens disclosure (required)</label
+                    >
+                    <div class="alert alert-light small py-2 mb-2">
+                      Tick all that apply. If none apply, tick
+                      <strong>No allergens / N/A</strong>.
+                    </div>
+                    <div class="row g-2" id="upAllergensWrap"></div>
+                    <div class="form-check mt-2">
+                      <input
+                        class="form-check-input"
+                        id="upAllergensNone"
+                        type="checkbox"
+                      /><label class="form-check-label" for="upAllergensNone"
+                        >No allergens / N/A</label
+                      >
+                    </div>
+                    <div class="form-text small">
+                      Users rely on this information - you must select at least
+                      one option above.
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label" for="upIngredients"
+                      >Ingredients</label
+                    >
+                    <textarea
+                      class="form-control"
+                      id="upIngredients"
+                      rows="2"
+                      maxlength="500"
+                      placeholder="e.g. beef, noodles, onion, soy sauce"
+                    ></textarea>
+                    <div class="form-text">
+                      Optional. A short ingredients list for the dish details
+                      view.
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label" for="upPrepDate"
+                      >Prepared on</label
+                    >
+                    <input class="form-control" id="upPrepDate" type="date" />
+                    <div class="form-text">
+                      Optional. The date the dish was prepared.
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label" for="upStatusNote"
+                      >Listing note</label
+                    >
+                    <input
+                      class="form-control"
+                      id="upStatusNote"
+                      maxlength="200"
+                      placeholder="e.g. Best served warm"
+                      type="text"
+                    />
+                    <div class="form-text">
+                      Optional. A short note shown in the dish details.
+                    </div>
+                  </div>
+
+                  <div class="col-12">
+                    <label class="form-label" for="upImg">Image URL</label>
+                    <input
+                      class="form-control"
+                      id="upImg"
+                      placeholder="https://…"
+                      type="url"
+                    />
+                    <div class="form-text">
+                      Optional. If empty, a placeholder image will be used.
+                    </div>
+                  </div>
+
+                  <div class="col-12">
+                    <label class="form-label" for="upFile">Upload image</label>
+                    <input
+                      accept="image/*"
+                      class="form-control"
+                      id="upFile"
+                      type="file"
+                    />
+                    <div class="form-text">
+                      Optional. If a file is selected, the app will try to
+                      upload it before saving the listing.
+                    </div>
+                  </div>
+                </div>
+                <div
+                  aria-atomic="true"
+                  aria-live="polite"
+                  class="small"
+                  id="uploadMsg"
+                  role="status"
+                ></div>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-brand" type="submit">
+                    <i aria-hidden="true" class="bi bi-cloud-upload me-1"></i>
+                    Save listing</button
+                  ><button class="btn btn-light" type="reset">Clear</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </main>
+    </section>
+    <div
+      aria-hidden="true"
+      aria-labelledby="reviewsModal-title"
+      class="modal fade"
+      id="reviewsModal"
+      tabindex="-1"
+    >
+      <div
+        aria-labelledby="reviewsModal-title"
+        class="modal-dialog modal-dialog-scrollable"
+      >
+        <div aria-labelledby="reviewsModal-title" class="modal-content">
+          <div aria-labelledby="reviewsModal-title" class="modal-header">
+            <h5 class="modal-title" id="reviewsModal-title">
+              <i aria-hidden="true" class="bi bi-chat-quote-fill me-2"></i
+              ><span id="reviewsTitle">Reviews</span>
+            </h5>
+            <button
+              class="btn-close"
+              data-bs-dismiss="modal"
+              type="button"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <div class="fw-semibold">
+                Average: <span id="reviewsAvg">–</span>/5
+              </div>
+              <div class="text-muted small">
+                (<span id="reviewsCount">0</span> reviews)
+              </div>
+            </div>
+            <div class="vstack gap-2 mb-3" id="reviewsList" role="list"></div>
+            <div
+              class="alert alert-light small mt-3 mb-0"
+              id="reviewReadOnlyHint"
+            >
+              To write a review, go to
+              <strong>Dashboard → Order history</strong> and tap
+              <strong>Review</strong> on an order.
+            </div>
+            <div class="d-none" id="reviewComposerWrap">
+              <hr class="my-3" />
+              <form class="vstack gap-2" id="reviewForm">
+                <div class="row g-2">
+                  <div class="col-4">
+                    <label class="form-label" for="reviewRating">Rating</label
+                    ><select class="form-select" id="reviewRating" required="">
+                      <option value="">Choose…</option>
+                      <option>1</option>
+                      <option>2</option>
+                      <option>3</option>
+                      <option>4</option>
+                      <option>5</option>
+                    </select>
+                  </div>
+                  <div class="col-8">
+                    <label class="form-label" for="reviewText">Comment</label
+                    ><input
+                      class="form-control"
+                      id="reviewText"
+                      maxlength="300"
+                      placeholder="Optional…"
+                    />
+                  </div>
+                </div>
+                <div
+                  aria-atomic="true"
+                  aria-live="polite"
+                  class="small"
+                  id="reviewMsg"
+                  role="status"
+                ></div>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-brand" type="submit">
+                    <i aria-hidden="true" class="bi bi-send me-1"></i> Submit
+                    review</button
+                  ><button
+                    class="btn btn-light"
+                    data-bs-dismiss="modal"
+                    type="button"
+                  >
+                    Close
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      aria-hidden="true"
+      aria-labelledby="reportModal-title"
+      class="modal fade"
+      id="reportModal"
+      tabindex="-1"
+    >
+      <div aria-labelledby="reportModal-title" class="modal-dialog">
+        <form
+          aria-labelledby="reportModal-title"
+          class="modal-content"
+          id="reportForm"
+        >
+          <div aria-labelledby="reportModal-title" class="modal-header">
+            <h5 class="modal-title" id="reportModal-title">Report an order</h5>
+            <button
+              aria-label="Close"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              type="button"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p class="small text-muted">
+              Use this if you became unwell or there was a serious issue with
+              the food from this order.
+            </p>
+            <div class="mb-3">
+              <label class="form-label" for="reportReason"
+                >Reason / what happened?</label
+              ><textarea
+                class="form-control"
+                id="reportReason"
+                required=""
+                rows="4"
+              ></textarea>
+            </div>
+            <div
+              aria-atomic="true"
+              aria-live="polite"
+              class="small"
+              id="reportMsg"
+              role="status"
+            ></div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-light" data-bs-dismiss="modal" type="button">
+              Cancel</button
+            ><button class="btn btn-danger" type="submit">Submit report</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div
+      aria-hidden="true"
+      aria-labelledby="modReportsModal-title"
+      class="modal fade"
+      id="modReportsModal"
+      tabindex="-1"
+    >
+      <div
+        aria-labelledby="modReportsModal-title"
+        class="modal-dialog modal-dialog-scrollable"
+      >
+        <div aria-labelledby="modReportsModal-title" class="modal-content">
+          <div aria-labelledby="modReportsModal-title" class="modal-header">
+            <h5 class="modal-title" id="modReportsModal-title">
+              <i aria-hidden="true" class="bi bi-shield-exclamation me-2"></i
+              >Pending reports
+            </h5>
+            <button
+              aria-label="Close"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              type="button"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div
+              aria-atomic="true"
+              aria-live="polite"
+              class="small text-muted mb-2"
+              id="modReportsMsg"
+              role="status"
+            ></div>
+            <div class="vstack gap-2" id="modReportsList" role="list"></div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-light" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      aria-hidden="true"
+      aria-labelledby="onboardModal-title"
+      class="modal fade"
+      id="onboardModal"
+      tabindex="-1"
+    >
+      <div aria-labelledby="onboardModal-title" class="modal-dialog">
+        <div aria-labelledby="onboardModal-title" class="modal-content">
+          <div aria-labelledby="onboardModal-title" class="modal-header">
+            <h5 class="modal-title" id="onboardModal-title">
+              Finish setting up your profile
+            </h5>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label" for="onbName">Username</label
+              ><input class="form-control" id="onbName" required="" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="onbRole">Account type</label
+              ><select class="form-select" id="onbRole">
+                <option value="user">User</option>
+                <option value="chef">Chef</option>
+              </select>
+            </div>
+            <div
+              aria-atomic="true"
+              aria-live="polite"
+              class="small text-muted"
+              id="onbMsg"
+              role="status"
+            >
+              Choose a username and your account type.
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-brand" id="btnOnbSave">
+              Save &amp; continue
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <section class="desktop-only" id="desktopMarketing">
+      <header class="bg-white border-bottom">
+        <nav aria-label="Primary" class="navbar container py-3">
+          <a class="navbar-brand fs-4 brand-accent" href="index.html"
+            >GrubHub</a
+          >
+          <div class="ms-auto">
+            <a class="btn btn-brand" href="index.html#get-app">Get the App</a>
+          </div>
+        </nav>
+      </header>
+      <main class="container py-5 text-center">
+        <h1 class="fw-bold">GrubHub works best on mobile</h1>
+        <p class="text-muted">
+          Open this on your phone or download the app to get started.
+        </p>
+        <div class="d-flex justify-content-center gap-2">
+          <a class="btn btn-dark"
+            ><i aria-hidden="true" class="bi bi-apple me-1"></i> App Store</a
+          >
+          <a class="btn btn-dark"
+            ><i aria-hidden="true" class="bi bi-google-play me-1"></i> Google
+            Play</a
+          >
+        </div>
+      </main>
+      <footer class="border-top py-4 text-center text-muted">
+        © <span class="year"></span> GrubHub. All rights reserved.
+      </footer>
+    </section>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="assets/js/app.js" type="module"></script>
+
+    <div
+      aria-hidden="true"
+      class="modal fade"
+      id="editListingModal"
+      tabindex="-1"
+    >
+      <div class="modal-dialog modal-dialog-scrollable">
+        <form class="modal-content" id="editListingForm">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editListingModal-title">
+              Edit listing
+            </h5>
+            <button
+              aria-label="Close"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              type="button"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <input id="edFoodId" type="hidden" />
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label" for="edTitle">Title</label
+                ><input
+                  class="form-control"
+                  id="edTitle"
+                  maxlength="120"
+                  required=""
+                />
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="edDesc">Description</label
+                ><textarea
+                  class="form-control"
+                  id="edDesc"
+                  maxlength="600"
+                  required=""
+                  rows="3"
+                ></textarea>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="edCat">Category</label
+                ><input class="form-control" id="edCat" required="" />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label" for="edPrice">Price (£)</label
+                ><input
+                  class="form-control"
+                  id="edPrice"
+                  min="0"
+                  required=""
+                  step="0.01"
+                  type="number"
+                />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label" for="edPortions"
+                  >Portions available</label
+                ><input
+                  class="form-control"
+                  id="edPortions"
+                  min="0"
+                  required=""
+                  step="1"
+                  type="number"
+                />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label" for="edExpiryDays"
+                  >Reset expiry to</label
+                ><select class="form-select" id="edExpiryDays">
+                  <option value="">Keep current</option>
+                  <option value="1">1 day</option>
+                  <option value="2">2 days</option>
+                  <option value="3">3 days</option>
+                  <option value="4">4 days</option>
+                  <option value="5">5 days</option>
+                  <option value="6">6 days</option>
+                  <option value="7">7 days</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label" for="edDeliveryRate"
+                  >Delivery £/mile</label
+                >
+                <input
+                  class="form-control"
+                  id="edDeliveryRate"
+                  min="0"
+                  step="0.01"
+                  type="number"
+                />
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label" for="edImg">Image URL</label>
+                <input
+                  class="form-control"
+                  id="edImg"
+                  placeholder="https://…"
+                  type="url"
+                />
+              </div>
+
+              <div class="col-12">
+                <label class="form-label" for="edIngredients"
+                  >Ingredients</label
+                >
+                <textarea
+                  class="form-control"
+                  id="edIngredients"
+                  rows="2"
+                  maxlength="500"
+                  placeholder="e.g. beef, noodles, onion, soy sauce"
+                ></textarea>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label" for="edPrepDate">Prepared on</label>
+                <input class="form-control" id="edPrepDate" type="date" />
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label" for="edStatusNote"
+                  >Listing note</label
+                >
+                <input
+                  class="form-control"
+                  id="edStatusNote"
+                  maxlength="200"
+                  placeholder="e.g. Best served warm"
+                  type="text"
+                />
+              </div>
+
+              <div class="col-12">
+                <label class="form-label" for="edFile"
+                  >Upload replacement image</label
+                >
+                <input
+                  accept="image/*"
+                  class="form-control"
+                  id="edFile"
+                  type="file"
+                />
+              </div>
+              <div class="col-12">
+                <div class="form-check form-check-inline">
+                  <input
+                    class="form-check-input"
+                    id="edPickup"
+                    type="checkbox"
+                  /><label class="form-check-label" for="edPickup"
+                    >Pickup available</label
+                  >
+                </div>
+                <div class="form-check form-check-inline">
+                  <input
+                    class="form-check-input"
+                    id="edDelivery"
+                    type="checkbox"
+                  /><label class="form-check-label" for="edDelivery"
+                    >Delivery available</label
+                  >
+                </div>
+                <div class="form-check form-check-inline">
+                  <input
+                    class="form-check-input"
+                    id="edVegan"
+                    type="checkbox"
+                  /><label class="form-check-label" for="edVegan"
+                    >Vegan dish</label
+                  >
+                </div>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Allergens disclosure</label>
+                <div class="row g-2" id="edAllergensWrap"></div>
+                <div class="form-check mt-2">
+                  <input
+                    class="form-check-input"
+                    id="edAllergensNone"
+                    type="checkbox"
+                  /><label class="form-check-label" for="edAllergensNone"
+                    >No allergens / N/A</label
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="small mt-3" id="editListingMsg"></div>
+          </div>
+          <div class="modal-footer justify-content-between">
+            <div class="d-flex gap-2">
+              <button
+                class="btn btn-outline-secondary"
+                id="btnDuplicateListing"
+                type="button"
+              >
+                Duplicate
+              </button>
+              <button
+                class="btn btn-outline-warning"
+                id="btnArchiveListing"
+                type="button"
+              >
+                Archive
+              </button>
+              <button
+                class="btn btn-outline-danger"
+                id="btnSoldOutListing"
+                type="button"
+              >
+                Mark sold out
+              </button>
+            </div>
+            <div class="d-flex gap-2">
+              <button
+                class="btn btn-light"
+                data-bs-dismiss="modal"
+                type="button"
+              >
+                Close
+              </button>
+              <button class="btn btn-brand" type="submit">Save changes</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

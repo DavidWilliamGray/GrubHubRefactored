@@ -1,0 +1,554 @@
+<!doctype html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <title>GrubHub - Profile</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      rel="stylesheet"
+    />
+    <link href="assets/css/styles.css" rel="stylesheet" />
+    <link rel="icon" href="assets/icons/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" />
+    <link rel="manifest" href="site.webmanifest" />
+    <meta name="theme-color" content="#6f42c1" />
+  </head>
+  <body data-page="profile">
+    <a class="skip-link" href="#mainContent">Skip to main content</a>
+    <div
+      aria-atomic="true"
+      aria-live="polite"
+      class="live-region"
+      id="sr-announcer-polite"
+    ></div>
+    <div
+      aria-atomic="true"
+      aria-live="assertive"
+      class="live-region"
+      id="sr-announcer-assertive"
+    ></div>
+    <header class="sticky-head border-bottom mobile-only">
+      <nav aria-label="Primary" class="navbar bg-white">
+        <div class="container-fluid">
+          <span class="navbar-brand mx-auto brand-accent">GrubHub</span>
+        </div>
+      </nav>
+      <div class="container pt-2 pb-3">
+        <ul class="nav nav-pills justify-content-between pill-tabs">
+          <li class="nav-item flex-fill text-center">
+            <a
+              class="nav-link nav-page-link"
+              data-page-link="listings"
+              href="listings.html"
+              >Listings</a
+            >
+          </li>
+          <li class="nav-item flex-fill text-center">
+            <a
+              class="nav-link nav-page-link"
+              data-page-link="dashboard"
+              href="dashboard.html"
+              >Dashboard</a
+            >
+          </li>
+          <li class="nav-item flex-fill text-center">
+            <a
+              class="nav-link nav-page-link"
+              data-page-link="profile"
+              href="profile.html"
+              >Profile</a
+            >
+          </li>
+        </ul>
+      </div>
+    </header>
+    <section class="mobile-only">
+      <main class="container py-3 focus-target" id="mainContent" tabindex="-1">
+        <h1 class="visually-hidden" id="pageHeading">
+          Profile and accessibility settings
+        </h1>
+        <div class="card shadow-smooth border-0 mb-3">
+          <div class="card-body d-flex align-items-center gap-3">
+            <div class="avatar" id="avatarInitial">U</div>
+            <div class="flex-grow-1">
+              <div class="fw-semibold">
+                Hello <span id="profileName">User</span>!
+              </div>
+              <div class="text-muted small">Welcome back to GrubHub.</div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="chip"
+                ><i aria-hidden="true" class="bi bi-patch-check-fill me-1"></i>
+                Verified</span
+              >
+              <button class="btn btn-outline-secondary btn-sm" id="btnSignOut">
+                Sign out
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="vstack gap-2 mb-3">
+          <button
+            class="btn btn-light text-start border"
+            data-bs-target="#editProfileModal"
+            data-bs-toggle="modal"
+          >
+            <i aria-hidden="true" class="bi bi-person-lines-fill me-2"></i> Edit
+            Profile Details
+          </button>
+          <button
+            class="btn btn-light text-start border"
+            data-bs-target="#accessibilityModal"
+            data-bs-toggle="modal"
+          >
+            <i aria-hidden="true" class="bi bi-universal-access me-2"></i>
+            Accessibility Settings
+          </button>
+          <button
+            class="btn btn-light text-start border"
+            data-bs-target="#privacyModal"
+            data-bs-toggle="modal"
+          >
+            <i aria-hidden="true" class="bi bi-shield-lock me-2"></i> Privacy
+            Policy
+          </button>
+        </div>
+        <div class="card shadow-smooth border-0 mb-3" id="notificationCard">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h5 class="mb-0">Notifications</h5>
+              <button
+                class="btn btn-sm btn-outline-secondary"
+                id="btnClearNotifications"
+                type="button"
+              >
+                Clear
+              </button>
+            </div>
+            <div class="small text-muted mb-2">
+              Recent activity and order updates will appear here.
+            </div>
+            <div class="vstack gap-2" id="notificationList"></div>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <div
+            class="divider-text mb-2 text-muted text-uppercase"
+            style="letter-spacing: 0.08em; font-size: 0.8rem"
+          >
+            Language
+          </div>
+          <select
+            class="form-select"
+            id="languageSelect"
+            style="max-width: 320px"
+          >
+            <option>English</option>
+            <option>Deutsch</option>
+            <option>Français</option>
+            <option>Español</option>
+          </select>
+        </div>
+        <div class="mt-4">
+          <div
+            class="divider-text mb-2 text-muted text-uppercase"
+            style="letter-spacing: 0.08em; font-size: 0.8rem"
+          >
+            Notifications
+          </div>
+          <div class="form-check form-switch">
+            <input
+              class="form-check-input"
+              id="notifSwitch"
+              type="checkbox"
+            /><label class="form-check-label" for="notifSwitch"
+              >Enable notifications</label
+            >
+          </div>
+        </div>
+      </main>
+    </section>
+    <div
+      aria-hidden="true"
+      aria-labelledby="editProfileModal-title"
+      class="modal fade"
+      id="editProfileModal"
+      tabindex="-1"
+    >
+      <div aria-labelledby="editProfileModal-title" class="modal-dialog">
+        <form
+          aria-labelledby="editProfileModal-title"
+          autocomplete="off"
+          class="modal-content"
+          id="editProfileForm"
+        >
+          <div aria-labelledby="editProfileModal-title" class="modal-header">
+            <h5 class="modal-title" id="editProfileModal-title">
+              Profile Details
+            </h5>
+            <button
+              aria-label="Close"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              type="button"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="alert alert-secondary py-2">
+              <div>
+                <strong>Signed in as</strong>
+                <span id="authEmail">(loading…)</span>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="fldDbName">Username</label
+              ><input class="form-control" id="fldDbName" required="" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="fldRole">Account type</label
+              ><select class="form-select" id="fldRole">
+                <option value="user">User</option>
+                <option value="chef">Chef</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="fldAvatarUrl"
+                >Profile image URL</label
+              ><input
+                class="form-control"
+                id="fldAvatarUrl"
+                placeholder="https://…"
+                type="url"
+              />
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="fldPickupArea"
+                >Collection / delivery area</label
+              ><input
+                class="form-control"
+                id="fldPickupArea"
+                maxlength="120"
+                placeholder="e.g. South Belfast, BT7"
+              />
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="fldBio">Short bio</label
+              ><textarea
+                class="form-control"
+                id="fldBio"
+                maxlength="300"
+                placeholder="Tell users a bit about the food you make."
+                rows="3"
+              ></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="fldHygieneNote"
+                >Food safety / hygiene note</label
+              ><textarea
+                class="form-control"
+                id="fldHygieneNote"
+                maxlength="220"
+                placeholder="Optional note shown on listing details."
+                rows="2"
+              ></textarea>
+            </div>
+
+            <hr />
+            <h6 class="mb-2">Password</h6>
+            <div class="row g-2 align-items-end">
+              <div class="col-12">
+                <label class="form-label" for="fldCurPw">Current password</label
+                ><input
+                  autocomplete="current-password"
+                  class="form-control"
+                  id="fldCurPw"
+                  placeholder="Enter your current password"
+                  type="password"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="fldNewPw">New password</label
+                ><input
+                  autocomplete="new-password"
+                  class="form-control"
+                  id="fldNewPw"
+                  minlength="6"
+                  type="password"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="fldNewPw2"
+                  >Confirm password</label
+                ><input
+                  autocomplete="new-password"
+                  class="form-control"
+                  id="fldNewPw2"
+                  minlength="6"
+                  type="password"
+                />
+              </div>
+              <div class="col-12">
+                <button
+                  class="btn btn-outline-primary btn-sm"
+                  id="btnChangePw"
+                  type="button"
+                >
+                  Change password now
+                </button>
+              </div>
+            </div>
+            <hr />
+            <h6 class="text-danger mb-2">Delete account</h6>
+            <p class="small mb-2">
+              This removes your profile row in the database and signs you out.
+            </p>
+            <button
+              class="btn btn-outline-danger"
+              id="btnDeleteAccount"
+              type="button"
+            >
+              Delete my account
+            </button>
+            <div
+              aria-atomic="true"
+              aria-live="polite"
+              class="small mt-3"
+              id="editMsg"
+              role="status"
+            ></div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-light" data-bs-dismiss="modal" type="button">
+              Close</button
+            ><button class="btn btn-brand" type="submit">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div
+      aria-hidden="true"
+      aria-labelledby="accessibilityModal-title"
+      class="modal fade"
+      id="accessibilityModal"
+      tabindex="-1"
+    >
+      <div aria-labelledby="accessibilityModal-title" class="modal-dialog">
+        <form
+          aria-labelledby="accessibilityModal-title"
+          class="modal-content"
+          id="accessForm"
+        >
+          <div aria-labelledby="accessibilityModal-title" class="modal-header">
+            <h5 class="modal-title" id="accessibilityModal-title">
+              Accessibility Settings
+            </h5>
+            <button
+              aria-label="Close"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              type="button"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label" for="fldAppearance">Appearance</label
+              ><select class="form-select" id="fldAppearance">
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+                <option value="highcontrast">High Contrast</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label d-block">Text Size</label>
+              <div class="form-check form-check-inline">
+                <input
+                  checked=""
+                  class="form-check-input"
+                  id="szStd"
+                  name="txtsize"
+                  type="radio"
+                  value="std"
+                /><label class="form-check-label" for="szStd">Standard</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input
+                  class="form-check-input"
+                  id="szLg"
+                  name="txtsize"
+                  type="radio"
+                  value="lg"
+                /><label class="form-check-label" for="szLg">Larger</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input
+                  class="form-check-input"
+                  id="szSm"
+                  name="txtsize"
+                  type="radio"
+                  value="sm"
+                /><label class="form-check-label" for="szSm">Smaller</label>
+              </div>
+            </div>
+            <div class="form-check mb-2">
+              <input
+                class="form-check-input"
+                id="chkBold"
+                type="checkbox"
+              /><label class="form-check-label" for="chkBold">Bold text</label>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                id="chkSR"
+                type="checkbox"
+              /><label class="form-check-label" for="chkSR"
+                >Screen reader enhancement</label
+              >
+            </div>
+            <div class="form-check mt-2">
+              <input
+                class="form-check-input"
+                id="chkReduceMotion"
+                type="checkbox"
+              /><label class="form-check-label" for="chkReduceMotion"
+                >Reduced motion</label
+              >
+            </div>
+            <div class="form-check mt-2">
+              <input
+                class="form-check-input"
+                id="chkSimpleUI"
+                type="checkbox"
+              /><label class="form-check-label" for="chkSimpleUI"
+                >Simplified interface</label
+              >
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-light" data-bs-dismiss="modal" type="button">
+              Close</button
+            ><button class="btn btn-brand" type="submit">Apply</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div
+      aria-hidden="true"
+      aria-labelledby="privacyModal-title"
+      class="modal fade"
+      id="privacyModal"
+      tabindex="-1"
+    >
+      <div aria-labelledby="privacyModal-title" class="modal-dialog">
+        <div aria-labelledby="privacyModal-title" class="modal-content">
+          <div aria-labelledby="privacyModal-title" class="modal-header">
+            <h5 class="modal-title" id="privacyModal-title">Privacy Policy</h5>
+            <button
+              aria-label="Close"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              type="button"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>
+              This demo stores some UI settings in localStorage. Account data
+              comes from Supabase.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-brand" data-bs-dismiss="modal">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      aria-hidden="true"
+      aria-labelledby="onboardModal-title"
+      class="modal fade"
+      id="onboardModal"
+      tabindex="-1"
+    >
+      <div aria-labelledby="onboardModal-title" class="modal-dialog">
+        <div aria-labelledby="onboardModal-title" class="modal-content">
+          <div aria-labelledby="onboardModal-title" class="modal-header">
+            <h5 class="modal-title" id="onboardModal-title">
+              Finish setting up your profile
+            </h5>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label" for="onbName">Username</label
+              ><input class="form-control" id="onbName" required="" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="onbRole">Account type</label
+              ><select class="form-select" id="onbRole">
+                <option value="user">User</option>
+                <option value="chef">Chef</option>
+              </select>
+            </div>
+            <div
+              aria-atomic="true"
+              aria-live="polite"
+              class="small text-muted"
+              id="onbMsg"
+              role="status"
+            >
+              Choose a username and your account type.
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-brand" id="btnOnbSave">
+              Save &amp; continue
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <section class="desktop-only" id="desktopMarketing">
+      <header class="bg-white border-bottom">
+        <nav aria-label="Primary" class="navbar container py-3">
+          <a class="navbar-brand fs-4 brand-accent" href="index.html"
+            >GrubHub</a
+          >
+          <div class="ms-auto">
+            <a class="btn btn-brand" href="index.html#get-app">Get the App</a>
+          </div>
+        </nav>
+      </header>
+      <main class="container py-5 text-center">
+        <h1 class="fw-bold">GrubHub works best on mobile</h1>
+        <p class="text-muted">
+          Open this on your phone or download the app to get started.
+        </p>
+        <div class="d-flex justify-content-center gap-2">
+          <a class="btn btn-dark"
+            ><i aria-hidden="true" class="bi bi-apple me-1"></i> App Store</a
+          >
+          <a class="btn btn-dark"
+            ><i aria-hidden="true" class="bi bi-google-play me-1"></i> Google
+            Play</a
+          >
+        </div>
+      </main>
+      <footer class="border-top py-4 text-center text-muted">
+        © <span class="year"></span> GrubHub. All rights reserved.
+      </footer>
+    </section>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="assets/js/app.js" type="module"></script>
+  </body>
+</html>
