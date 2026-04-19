@@ -626,20 +626,47 @@ notifSwitch?.addEventListener("change", (e) => {
   savePrefs();
 });
 
-const NOTIF_KEY = "gfg_notifications_v1";
+const NOTIF_KEY_PREFIX = "gfg_notifications_v1_";
+
+function currentNotificationKey() {
+  const uid = Number(DBPROFILE?.user_id);
+  return Number.isFinite(uid) ? `${NOTIF_KEY_PREFIX}${uid}` : null;
+}
+
 function loadNotifications() {
+  const key = currentNotificationKey();
+  if (!key) return [];
+
   try {
-    const items = JSON.parse(localStorage.getItem(NOTIF_KEY) || "[]");
+    const items = JSON.parse(localStorage.getItem(key) || "[]");
     return Array.isArray(items) ? items : [];
   } catch {
     return [];
   }
 }
-let NOTIFICATIONS = loadNotifications();
+
+let NOTIFICATIONS = [];
+
 function saveNotifications() {
-  localStorage.setItem(NOTIF_KEY, JSON.stringify(NOTIFICATIONS.slice(0, 40)));
+  const key = currentNotificationKey();
+  if (!key) return;
+  localStorage.setItem(key, JSON.stringify(NOTIFICATIONS.slice(0, 40)));
 }
+
+function clearNotificationsState() {
+  NOTIFICATIONS = [];
+  renderNotifications();
+}
+
+function reloadNotificationsForCurrentUser() {
+  NOTIFICATIONS = loadNotifications();
+  renderNotifications();
+}
+
 function pushNotification(title, body = "", type = "info", meta = {}) {
+  const key = currentNotificationKey();
+  if (!key) return;
+
   const item = {
     id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
     title,
@@ -649,23 +676,29 @@ function pushNotification(title, body = "", type = "info", meta = {}) {
     unread: true,
     ...meta,
   };
+
   NOTIFICATIONS.unshift(item);
   saveNotifications();
   renderNotifications();
+
   if (prefs.notif) announce(title, "polite");
 }
+
 function markNotificationsRead() {
   NOTIFICATIONS = NOTIFICATIONS.map((item) => ({ ...item, unread: false }));
   saveNotifications();
   renderNotifications();
 }
+
 function renderNotifications() {
   if (!notificationList) return;
+
   if (!NOTIFICATIONS.length) {
     notificationList.innerHTML =
       '<div class="text-muted small">No notifications yet.</div>';
     return;
   }
+
   notificationList.innerHTML = NOTIFICATIONS.slice(0, 10)
     .map(
       (n) => `
@@ -682,12 +715,14 @@ function renderNotifications() {
     )
     .join("");
 }
+
 btnClearNotifications?.addEventListener("click", () => {
   NOTIFICATIONS = [];
   saveNotifications();
   renderNotifications();
   announce("Notifications cleared.", "polite");
 });
+
 renderNotifications();
 // ---------- DB profile ----------
 let DBPROFILE = null;
@@ -2796,6 +2831,7 @@ async function loadOrdersAndDashboard() {
       db
         .from("user_orders_v")
         .select("*")
+        .eq("buyer_id", me)
         .order("created_at", { ascending: false }),
       db
         .from("reports")
@@ -2817,6 +2853,7 @@ async function loadOrdersAndDashboard() {
         db
           .from("chef_orders_v")
           .select("*")
+          .eq("chef_id", me)
           .order("created_at", { ascending: false }),
         db
           .from("favourite_counts_v")
@@ -4156,12 +4193,19 @@ async function bootProtectedPage(sessionUser) {
   if (LAST_AUTH_UID !== u.id) {
     LAST_AUTH_UID = u.id;
     clearFavsState();
+    clearNotificationsState();
   }
   if (authEmailEl) authEmailEl.textContent = u.email || "";
   const { data: prof } = await getDbProfile(u.id);
   useDbProfileUI(prof || null);
-  if (DBPROFILE?.user_id) loadReportedFoods(DBPROFILE.user_id);
-  else resetReportedFoods();
+
+  if (DBPROFILE?.user_id) {
+    loadReportedFoods(DBPROFILE.user_id);
+    reloadNotificationsForCurrentUser();
+  } else {
+    resetReportedFoods();
+    clearNotificationsState();
+  }
   if (fldDbName)
     fldDbName.value = DBPROFILE?.user_name || u.email?.split("@")[0] || "";
   if (fldRole) fldRole.value = DBPROFILE?.user_group || "user";
@@ -4233,7 +4277,9 @@ supabase.auth.onAuthStateChange((event, session) => {
   if (event === "SIGNED_OUT") {
     announce("Signed out.", "polite");
     clearFavsState();
+    clearNotificationsState();
     LAST_AUTH_UID = null;
+    DBPROFILE = null;
     if (PROTECTED_PAGES.has(PAGE)) go("login", true);
   }
   if (event === "SIGNED_IN" && PAGE === "login") {
