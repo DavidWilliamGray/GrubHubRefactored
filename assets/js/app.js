@@ -2612,10 +2612,28 @@ function nextOrderActions(order) {
 function orderActionLabel(status) {
   return labelOrderStatus(status);
 }
+
+function orderStatusForRpc(status) {
+  const s = normalizeOrderStatus(status);
+
+  return (
+    {
+      placed: "Placed",
+      accepted: "Accepted",
+      preparing: "Preparing",
+      ready: "Ready",
+      out_for_delivery: "Out for delivery",
+      completed: "Completed",
+      cancelled: "Cancelled",
+      reported: "Reported",
+    }[s] || "Placed"
+  );
+}
+
 async function updateOrderStatus(orderId, nextStatus) {
   const payload = {
     p_order_id: Number(orderId),
-    p_status: nextStatus,
+    p_status: orderStatusForRpc(nextStatus),
     p_status_note: null,
   };
 
